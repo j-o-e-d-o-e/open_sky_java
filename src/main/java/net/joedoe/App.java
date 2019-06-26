@@ -23,7 +23,7 @@ public class App {
 
     @SuppressWarnings("WeakerAccess")
     public void getPlanes() {
-        getProps();
+        loadProps();
         try {
             states = api.getStates(0, null, box);
         } catch (IOException e) {
@@ -54,9 +54,10 @@ public class App {
         return plane.getHeading() > minHeading && plane.getHeading() < maxHeading && plane.getGeoAltitude() < maxAltitude;
     }
 
-    private void getProps() {
+    private void loadProps() {
         Properties props = new Properties();
         try {
+            // application-default.properties
             props.load(getClass().getResourceAsStream("/application.properties"));
         } catch (IOException e) {
             e.printStackTrace();
