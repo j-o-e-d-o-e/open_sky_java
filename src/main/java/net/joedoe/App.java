@@ -57,9 +57,12 @@ public class App {
     private void loadProps() {
         Properties props = new Properties();
         try {
-            // application-default.properties
             props.load(getClass().getResourceAsStream("/application.properties"));
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) {
+            if (e instanceof NullPointerException) {
+                logger.info("Change path of properties-file in App.java to: /application-default.properties");
+                System.exit(1);
+            }
             e.printStackTrace();
         }
         float minLatitude = Float.parseFloat(props.getProperty("minLatitude"));
@@ -72,7 +75,6 @@ public class App {
         maxHeading = Integer.parseInt(props.getProperty("maxHeading"));
         maxAltitude = Integer.parseInt(props.getProperty("maxGeoAltitude"));
     }
-
 
     public static void main(String[] args) {
         new App().getPlanes();
