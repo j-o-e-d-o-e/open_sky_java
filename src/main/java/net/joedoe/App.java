@@ -38,15 +38,16 @@ public class App {
         logger.info("Number of all planes: " + planes.size());
         planes = planes.stream().filter(this::include).collect(Collectors.toList());
         if (planes.size() == 0) {
-            logger.info("No planes met requirements");
+            logger.info("No planes met requirements.");
             return;
         }
         logger.info("Number of valid planes: " + planes.size());
         for (StateVector plane : planes) {
-            logger.info("TIMESTAMP: " + System.currentTimeMillis());
-            logger.info("ICAO 24: " + plane.getIcao24());
-            logger.info("ALTITUDE: " + Math.round(plane.getGeoAltitude()) + " m");
-            logger.info("VELOCITY: " + Math.round(plane.getVelocity() * 60 * 60 / 1000) + " km/h");
+            String message = "Timestamp: " + System.currentTimeMillis() + " / " +
+                    "Icao 24: " + plane.getIcao24() + " / " +
+                    "Altitude: " + Math.round(plane.getGeoAltitude()) + " m" + " / " +
+                    "Velocity: " + Math.round(plane.getVelocity() * 60 * 60 / 1000) + " km/h";
+            logger.info(message);
         }
     }
 
