@@ -9,6 +9,10 @@ import org.opensky.model.OpenSkyStates;
 import org.opensky.model.StateVector;
 
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -43,10 +47,13 @@ public class App {
         }
         logger.info("Number of valid planes: " + planes.size());
         for (StateVector plane : planes) {
-            String message = "Timestamp: " + System.currentTimeMillis() + " / " +
+            long timestamp = System.currentTimeMillis();
+            LocalDateTime date = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault());
+            String message = "Date: " + date + " / " +
                     "Icao 24: " + plane.getIcao24() + " / " +
                     "Altitude: " + Math.round(plane.getGeoAltitude()) + " m" + " / " +
-                    "Velocity: " + Math.round(plane.getVelocity() * 60 * 60 / 1000) + " km/h";
+                    "Velocity: " + Math.round(plane.getVelocity() * 60 * 60 / 1000) + " km/h" + " / " +
+                    "Heading: " + plane.getHeading() + "°";
             logger.info(message);
         }
     }
