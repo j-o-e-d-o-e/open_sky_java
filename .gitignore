@@ -3,3 +3,9 @@
 
 # Ignore Gradle build output directory
 build
+
+out
+open_sky_test.*
+*.log
+**/application.properties
+
