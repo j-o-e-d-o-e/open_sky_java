@@ -3,35 +3,38 @@
  */
 package net.joedoe;
 
+import com.google.gson.Gson;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.opensky.api.OpenSkyApi;
 import org.opensky.api.OpenSkyApi.BoundingBox;
 import org.opensky.model.OpenSkyStates;
 import org.opensky.model.StateVector;
 
 import java.io.IOException;
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class App {
-    private OpenSkyApi api = new OpenSkyApi();
-    private OpenSkyStates states = null;
     private BoundingBox box;
-    private Logger logger = Logger.getLogger(App.class.getName());
     private int minHeading, maxHeading, maxAltitude;
+    private String weatherUrl;
 
-    @SuppressWarnings("WeakerAccess")
-    public void getPlanes() {
-        loadProps();
+    private Logger logger = Logger.getLogger(App.class.getName());
+
+    private void getPlanes() {
+        OpenSkyStates states = null;
         try {
-            states = api.getStates(0, null, box);
-        } catch (IOException e) {
-            e.printStackTrace();
+            states = new OpenSkyApi().getStates(0, null, box);
+        } catch (Exception e) {
+            logger.info("No states found.");
         }
         if (states == null) return;
         List<StateVector> planes = (List<StateVector>) states.getStates();
@@ -62,6 +65,18 @@ public class App {
         return plane.getHeading() > minHeading && plane.getHeading() < maxHeading && plane.getGeoAltitude() < maxAltitude;
     }
 
+    private void getWeather() {
+        Request request = new Request.Builder().url(weatherUrl).build();
+        try (Response response = new OkHttpClient().newCall(request).execute()) {
+            String json = Objects.requireNonNull(response.body()).string();
+            Weather weather = new Gson().fromJson(json, Weather.class);
+            logger.info(weather.toString());
+        } catch (Exception e) {
+            logger.info("No weather data found.");
+
+        }
+    }
+
     private void loadProps() {
         Properties props = new Properties();
         try {
@@ -82,9 +97,14 @@ public class App {
         minHeading = Integer.parseInt(props.getProperty("minHeading"));
         maxHeading = Integer.parseInt(props.getProperty("maxHeading"));
         maxAltitude = Integer.parseInt(props.getProperty("maxGeoAltitude"));
+
+        weatherUrl = props.getProperty("weatherUrl");
     }
 
     public static void main(String[] args) {
-        new App().getPlanes();
+        App app = new App();
+        app.loadProps();
+        app.getWeather();
+        app.getPlanes();
     }
 }
